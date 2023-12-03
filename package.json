@@ -4,7 +4,9 @@
   "description": "gestion de productos stel order",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+
   },
   "author": "germanrattia",
   "license": "ISC",
