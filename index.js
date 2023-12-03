@@ -25,6 +25,9 @@ async function requestController(req, res) {
     const apiKeyGet = "R7ER64vfNYTruLXlvYw9FpFLyi0FJRUujYSp0HRP"; // API key para la solicitud GET
     const apiKeyPost = "Iu9soxDtZGLi3HCDqAM8oyNdPI6if53hOjXgKSMe"; // API key para la solicitud POST
 
+    // Resetear la variable peticionesRealizadas a false al comienzo de cada solicitud HTTP
+    peticionesRealizadas = false;
+
     try {
         // Realizar la solicitud GET solo si las peticiones aún no se han realizado
         if (!peticionesRealizadas) {
