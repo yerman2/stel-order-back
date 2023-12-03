@@ -4,6 +4,7 @@ const axios = require("axios");
 // Variable para almacenar la suma de números aleatorios
 let randomSum = 0;
 let datos = {};
+let datosEnviados = new Set(); // Conjunto para almacenar los datos ya enviados
 let peticionesRealizadas = false; // Variable de control
 
 function updateRandomSum() {
@@ -105,17 +106,25 @@ async function requestController(req, res) {
 }
 
 // Función para enviar datos a la nueva API
-async function sendToStelOrderAPI(apiUrl, apiKey, datos) {
+async function sendToStelOrderAPI(apiUrl, apiKey, dato) {
     try {
-        // Realizar solicitudes POST a la API con los datos formateados en el cuerpo (body)
-        const response = await axios.post(apiUrl, datos, {
-            headers: {
-                "APIKEY": apiKey,
-                "Content-Type": "application/json",
-            },
-        });
+        // Verificar si el dato ya se ha enviado antes
+        if (!datosEnviados.has(JSON.stringify(dato))) {
+            // Realizar solicitudes POST a la API con el dato formateado en el cuerpo (body)
+            const response = await axios.post(apiUrl, dato, {
+                headers: {
+                    "APIKEY": apiKey,
+                    "Content-Type": "application/json",
+                },
+            });
 
-        console.log("Respuesta de la API de StelOrder:", response.data);
+            // console.log("Respuesta de la API de StelOrder:", response.data);
+
+            // Agregar el dato al conjunto de datos enviados
+            datosEnviados.add(JSON.stringify(dato));
+        } else {
+            console.log("El dato ya se ha enviado previamente.");
+        }
     } catch (error) {
         console.error("Error al enviar datos a la API de StelOrder:", error);
     }
