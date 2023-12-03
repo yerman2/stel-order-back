@@ -1,9 +1,5 @@
-const dotenv = {
-    config: function () {
-        console.log('METODO DEL OBJETO DOT ENV');
-    }
-}
-dotenv.config();
+require("dotenv").config();
+
 const http = require("http");
 
 function requestController() {
