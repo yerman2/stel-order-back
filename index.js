@@ -4,6 +4,7 @@ const axios = require("axios");
 // Variable para almacenar la suma de números aleatorios
 let randomSum = 0;
 let datos = {};
+let peticionesRealizadas = false; // Variable de control
 
 function updateRandomSum() {
     // Generar dos números aleatorios entre 1 y 1000
@@ -17,10 +18,13 @@ function updateRandomSum() {
     console.log("Valor actualizado de randomSum:", randomSum);
 }
 
+// Realizar la primera ejecución de peticiones al cargar el servidor
+realizarPeticiones();
+
 // Actualizar la variable cada 10 segundos (10000 milisegundos)
 setInterval(updateRandomSum, 50000);
 
-async function requestController(req, res) {
+async function realizarPeticiones() {
     const apiKeyGet = "R7ER64vfNYTruLXlvYw9FpFLyi0FJRUujYSp0HRP"; // API key para la solicitud GET
     const apiKeyPost = "Iu9soxDtZGLi3HCDqAM8oyNdPI6if53hOjXgKSMe"; // API key para la solicitud POST
 
@@ -55,24 +59,41 @@ async function requestController(req, res) {
             };
         });
 
-        // Imprimir los datos formateados con el nuevo precio de venta
-        console.log(updatedSalesData);
-        datos = {
-            name: "TES7777777777777"
+        // Iterar sobre cada objeto en updatedSalesData y enviarlos uno por uno
+        for (const updatedProduct of updatedSalesData) {
+            // Imprimir el objeto actual en la consola
+            console.log("Enviando producto:", updatedProduct);
 
+            // Enviar el objeto actual a la nueva API usando la API key correspondiente
+            await sendToStelOrderAPI("https://app.stelorder.com/app/products", apiKeyPost, updatedProduct);
+
+            // Pausar la ejecución durante unos segundos (ajusta según sea necesario)
+            await sleep(1000); // Puedes ajustar el tiempo de pausa según tus necesidades
         }
-        // Enviar los datos actualizados a la nueva API usando la API key correspondiente
-        await sendToStelOrderAPI("https://app.stelorder.com/app/products", apiKeyPost, datos);
 
-        // Responder con los datos formateados
-        res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify(updatedSalesData));
+        // Marcar las peticiones como realizadas
+        peticionesRealizadas = true;
+
+        console.log("Peticiones realizadas correctamente");
     } catch (error) {
         // Manejar errores al realizar la solicitud
         console.error("Error al hacer la solicitud:", error);
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Error interno del servidor");
     }
+}
+
+async function requestController(req, res) {
+    // Resetear la variable peticionesRealizadas a false al comienzo de cada solicitud HTTP
+    peticionesRealizadas = false;
+
+    // Realizar las peticiones solo si aún no se han realizado
+    if (!peticionesRealizadas) {
+        // Llamar a la función para realizar las peticiones
+        await realizarPeticiones();
+    }
+
+    // Responder con los datos formateados
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({ message: "Peticiones realizadas correctamente" }));
 }
 
 // Función para enviar datos a la nueva API
@@ -92,12 +113,18 @@ async function sendToStelOrderAPI(apiUrl, apiKey, datos) {
     }
 }
 
+// Función para pausar la ejecución (promesa)
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Configurar el servidor
 const server = require("http").createServer(requestController);
 
 // Obtener el puerto de las variables de entorno o utilizar el puerto 4000 por defecto
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, function () {
     console.log(`El servidor está escuchando en el puerto ${PORT}`);
 });
+ 
