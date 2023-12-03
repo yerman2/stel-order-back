@@ -100,7 +100,7 @@ async function requestController(req, res) {
     }
 
     // Responder con los datos formateados
-    // res.setHeader("Content-Type", "application/json");
+    res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ message: "Peticiones realizadas correctamente" }));
 }
 
