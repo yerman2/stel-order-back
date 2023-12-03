@@ -22,7 +22,15 @@ function updateRandomSum() {
 realizarPeticiones();
 
 // Actualizar la variable cada 10 segundos (10000 milisegundos)
-setInterval(updateRandomSum, 50000);
+setInterval(async () => {
+    updateRandomSum();
+
+    // Realizar las peticiones solo si aún no se han realizado
+    if (!peticionesRealizadas) {
+        // Llamar a la función para realizar las peticiones
+        await realizarPeticiones();
+    }
+}, 50000);
 
 async function realizarPeticiones() {
     const apiKeyGet = "9W93AksSPoZi7Hmsl3e0rLZwDx9RmR07ZHEgSk2u"; // API key para la solicitud GET
@@ -127,4 +135,7 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, function () {
     console.log(`El servidor está escuchando en el puerto ${PORT}`);
 });
+
  
+
+// Code By @yerman2
