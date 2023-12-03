@@ -25,8 +25,8 @@ realizarPeticiones();
 setInterval(updateRandomSum, 50000);
 
 async function realizarPeticiones() {
-    const apiKeyGet = "R7ER64vfNYTruLXlvYw9FpFLyi0FJRUujYSp0HRP"; // API key para la solicitud GET
-    const apiKeyPost = "Iu9soxDtZGLi3HCDqAM8oyNdPI6if53hOjXgKSMe"; // API key para la solicitud POST
+    const apiKeyGet = "9W93AksSPoZi7Hmsl3e0rLZwDx9RmR07ZHEgSk2u"; // API key para la solicitud GET
+    const apiKeyPost = "vFHye6w4VFKjoRkWpPa49hxoUVTcZC3aGBptdNT7"; // API key para la solicitud POST
 
     try {
         // Realizar la solicitud GET a la URL proporcionada
@@ -127,3 +127,4 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, function () {
     console.log(`El servidor está escuchando en el puerto ${PORT}`);
 });
+ 
