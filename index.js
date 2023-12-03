@@ -18,74 +18,82 @@ function updateRandomSum() {
     console.log("Valor actualizado de randomSum:", randomSum);
 }
 
+// Realizar la primera ejecución de peticiones al cargar el servidor
+realizarPeticiones();
+
 // Actualizar la variable cada 10 segundos (10000 milisegundos)
 setInterval(updateRandomSum, 50000);
 
-async function requestController(req, res) {
+async function realizarPeticiones() {
     const apiKeyGet = "R7ER64vfNYTruLXlvYw9FpFLyi0FJRUujYSp0HRP"; // API key para la solicitud GET
     const apiKeyPost = "Iu9soxDtZGLi3HCDqAM8oyNdPI6if53hOjXgKSMe"; // API key para la solicitud POST
 
-    // Resetear la variable peticionesRealizadas a false al comienzo de cada solicitud HTTP
-    peticionesRealizadas = false;
-
     try {
-        // Realizar la solicitud GET solo si las peticiones aún no se han realizado
-        if (!peticionesRealizadas) {
-            // Realizar la solicitud GET a la URL proporcionada
-            const response = await axios.get("https://app.stelorder.com/app/products", {
-                headers: {
-                    "APIKEY": apiKeyGet,
-                },
-            });
+        // Realizar la solicitud GET a la URL proporcionada
+        const response = await axios.get("https://app.stelorder.com/app/products", {
+            headers: {
+                "APIKEY": apiKeyGet,
+            },
+        });
 
-            // Obtener los datos de la respuesta
-            const responseData = response.data;
+        // Obtener los datos de la respuesta
+        const responseData = response.data;
 
-            // Mapear los datos según el formato deseado
-            const formattedData = responseData.map(item => {
-                return {
-                    "description": item.description,
-                    "purchase-price": item["purchase-price"],
-                    "serial-number-id": item["serial-number-id"],
-                    "name": item.name,
-                    "sales-price": item["sales-price"]
-                };
-            });
+        // Mapear los datos según el formato deseado
+        const formattedData = responseData.map(item => {
+            return {
+                "description": item.description,
+                "purchase-price": item["purchase-price"],
+                "serial-number-id": item["serial-number-id"],
+                "name": item.name,
+                "sales-price": item["sales-price"]
+            };
+        });
 
-            // Crear un nuevo objeto con el aumento del 25% en el precio de venta
-            const updatedSalesData = formattedData.map(item => {
-                return {
-                    "description": item.description,
-                    "name": item.name,
-                    "sales-price": item["sales-price"] * 1.25
-                };
-            });
+        // Crear un nuevo objeto con el aumento del 25% en el precio de venta
+        const updatedSalesData = formattedData.map(item => {
+            return {
+                "description": item.description,
+                "name": item.name,
+                "sales-price": item["sales-price"] * 1.25
+            };
+        });
 
-            // Iterar sobre cada objeto en updatedSalesData y enviarlos uno por uno
-            for (const updatedProduct of updatedSalesData) {
-                // Imprimir el objeto actual en la consola
-                console.log("Enviando producto:", updatedProduct);
+        // Iterar sobre cada objeto en updatedSalesData y enviarlos uno por uno
+        for (const updatedProduct of updatedSalesData) {
+            // Imprimir el objeto actual en la consola
+            console.log("Enviando producto:", updatedProduct);
 
-                // Enviar el objeto actual a la nueva API usando la API key correspondiente
-                await sendToStelOrderAPI("https://app.stelorder.com/app/products", apiKeyPost, updatedProduct);
+            // Enviar el objeto actual a la nueva API usando la API key correspondiente
+            await sendToStelOrderAPI("https://app.stelorder.com/app/products", apiKeyPost, updatedProduct);
 
-                // Pausar la ejecución durante unos segundos (ajusta según sea necesario)
-                await sleep(1000); // Puedes ajustar el tiempo de pausa según tus necesidades
-            }
-
-            // Marcar las peticiones como realizadas
-            peticionesRealizadas = true;
+            // Pausar la ejecución durante unos segundos (ajusta según sea necesario)
+            await sleep(1000); // Puedes ajustar el tiempo de pausa según tus necesidades
         }
 
-        // Responder con los datos formateados
-        res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ message: "Peticiones realizadas correctamente" }));
+        // Marcar las peticiones como realizadas
+        peticionesRealizadas = true;
+
+        console.log("Peticiones realizadas correctamente");
     } catch (error) {
         // Manejar errores al realizar la solicitud
         console.error("Error al hacer la solicitud:", error);
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Error interno del servidor");
     }
+}
+
+async function requestController(req, res) {
+    // Resetear la variable peticionesRealizadas a false al comienzo de cada solicitud HTTP
+    peticionesRealizadas = false;
+
+    // Realizar las peticiones solo si aún no se han realizado
+    if (!peticionesRealizadas) {
+        // Llamar a la función para realizar las peticiones
+        await realizarPeticiones();
+    }
+
+    // Responder con los datos formateados
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({ message: "Peticiones realizadas correctamente" }));
 }
 
 // Función para enviar datos a la nueva API
