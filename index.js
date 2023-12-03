@@ -1,16 +1,21 @@
-const express = require('express');
-const app = express();
+const dotenv = {
+    config: function () {
+        console.log('METODO DEL OBJETO DOT ENV');
+    }
+}
+dotenv.config();
+const http = require("http");
 
-const port = process.env.PORT || 4000;
+function requestController() {
+    console.log('Console Log Funcion con la Logica');
 
-app.get('/', (req, res) => {
-  res.send('¡Hola, mundo!');
-});
+}
 
-console.log('¡Console. TEST+++!');
+// Configurar el servidor
+const server = http.createServer(requestController);
 
-app.listen(port, () => {
-  console.log(`El servidor está escuchando en el puerto ${port}`);
+const PORT = process.env.PORT;
 
-  console.log('¡Hola, Deploy test!');
-});
+server.listen(400, function () {
+    console.log(`El servidor está escuchando en el puerto ${PORT}`);
+})
