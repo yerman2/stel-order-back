@@ -1,6 +1,20 @@
 require("dotenv").config();
 const http = require("follow-redirects").http; // Modificado para utilizar follow-redirects
 
+// Variable para almacenar la suma de números aleatorios
+let randomSum = 0;
+
+function updateRandomSum() {
+    // Sumar dos números aleatorios y asignar el resultado a la variable
+    randomSum = Math.random() + Math.random();
+
+    // Mostrar el valor actualizado en la consola
+    console.log("Valor actualizado de randomSum:", randomSum);
+}
+
+// Actualizar la variable cada 10 segundos (10000 milisegundos)
+setInterval(updateRandomSum, 50000);
+
 function requestController(req, res) {
     const apiKey = "TIvATRBiICTwkGyTD46GI4sOKNPHhI3cMCjYC4QE"; // Tu clave API
 
