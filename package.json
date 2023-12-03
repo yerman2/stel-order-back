@@ -1,0 +1,14 @@
+{
+  "name": "stel-order-gestion",
+  "version": "1.0.0",
+  "description": "gestion de productos stel order",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
+  "author": "germanrattia",
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
