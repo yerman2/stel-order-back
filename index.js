@@ -122,7 +122,7 @@ function sleep(ms) {
 const server = require("http").createServer(requestController);
 
 // Obtener el puerto de las variables de entorno o utilizar el puerto 4000 por defecto
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, function () {
     console.log(`El servidor está escuchando en el puerto ${PORT}`);
