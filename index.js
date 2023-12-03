@@ -1,12 +1,17 @@
 require("dotenv").config();
-const http = require("follow-redirects").http; // Modificado para utilizar follow-redirects
+const axios = require("axios");
 
 // Variable para almacenar la suma de números aleatorios
 let randomSum = 0;
+let datos = {};
 
 function updateRandomSum() {
-    // Sumar dos números aleatorios y asignar el resultado a la variable
-    randomSum = Math.random() + Math.random();
+    // Generar dos números aleatorios entre 1 y 1000
+    const randomNumber1 = Math.floor(Math.random() * 1000) + 1;
+    const randomNumber2 = Math.floor(Math.random() * 1000) + 1;
+
+    // Sumar los números aleatorios y asignar el resultado a la variable
+    randomSum = randomNumber1 + randomNumber2;
 
     // Mostrar el valor actualizado en la consola
     console.log("Valor actualizado de randomSum:", randomSum);
@@ -15,82 +20,88 @@ function updateRandomSum() {
 // Actualizar la variable cada 10 segundos (10000 milisegundos)
 setInterval(updateRandomSum, 50000);
 
-function requestController(req, res) {
-    const apiKey = "TIvATRBiICTwkGyTD46GI4sOKNPHhI3cMCjYC4QE"; // Tu clave API
+async function requestController(req, res) {
+    const apiKeyGet = "R7ER64vfNYTruLXlvYw9FpFLyi0FJRUujYSp0HRP"; // API key para la solicitud GET
+    const apiKeyPost = "Iu9soxDtZGLi3HCDqAM8oyNdPI6if53hOjXgKSMe"; // API key para la solicitud POST
 
-    // Configurar los parámetros de la solicitud a la URL proporcionada
-    const options = {
-        hostname: "app.stelorder.com",
-        path: "/app/products",
-        method: "GET",
-        headers: {
-            "APIKEY": apiKey,
-        },
-    };
-
-    // Realizar la solicitud a la URL proporcionada
-    const apiRequest = http.request(options, apiResponse => {
-        let data = "";
-
-        // Recibir datos de la respuesta de la API
-        apiResponse.on("data", chunk => {
-            data += chunk;
+    try {
+        // Realizar la solicitud GET a la URL proporcionada
+        const response = await axios.get("https://app.stelorder.com/app/products", {
+            headers: {
+                "APIKEY": apiKeyGet,
+            },
         });
 
-        // Al completar la respuesta, manejar la lógica
-        apiResponse.on("end", () => {
-            try {
-                // Convertir la cadena JSON recibida a un objeto JavaScript
-                const responseData = JSON.parse(data);
+        // Obtener los datos de la respuesta
+        const responseData = response.data;
 
-                // Mapear los datos según el formato deseado
-                const formattedData = responseData.map(item => {
-                    return {
-                        "description": item.description,
-                        "purchase-price": item["purchase-price"],
-                        "serial-number-id": item["serial-number-id"],
-                        "name": item.name,
-                        "sales-price": item["sales-price"]
-                    };
-                });
-
-                // Crear un nuevo objeto con el aumento del 25% en el precio de venta
-                const updatedSalesData = formattedData.map(item => {
-                    return {
-                        "description": item.description,
-                        "name": item.name,
-                        "sales-price": item["sales-price"] * 1.25
-                    };
-                });
-
-                // Imprimir los datos formateados con el nuevo precio de venta
-                console.log(updatedSalesData);
-
-                // Responder con los datos formateados
-                res.setHeader("Content-Type", "application/json");
-                res.end(JSON.stringify(updatedSalesData));
-            } catch (error) {
-                // Manejar errores al analizar la respuesta JSON
-                console.error("Error al analizar la respuesta JSON:", error);
-                res.writeHead(500, { "Content-Type": "text/plain" });
-                res.end("Error interno del servidor");
-            }
+        // Mapear los datos según el formato deseado
+        const formattedData = responseData.map(item => {
+            return {
+                "description": item.description,
+                "purchase-price": item["purchase-price"],
+                "serial-number-id": item["serial-number-id"],
+                "name": item.name,
+                "sales-price": item["sales-price"]
+            };
         });
-    });
 
-    // Manejar errores de la solicitud a la API
-    apiRequest.on("error", error => {
+        // Crear un nuevo objeto con el aumento del 25% en el precio de venta
+        const updatedSalesData = formattedData.map(item => {
+            return {
+                "description": item.description,
+                "name": item.name,
+                "sales-price": item["sales-price"] * 1.25
+            };
+        });
+
+        // Iterar sobre cada objeto en updatedSalesData y enviarlos uno por uno
+        for (const updatedProduct of updatedSalesData) {
+            // Imprimir el objeto actual en la consola
+            console.log("Enviando producto:", updatedProduct);
+
+            // Enviar el objeto actual a la nueva API usando la API key correspondiente
+            await sendToStelOrderAPI("https://app.stelorder.com/app/products", apiKeyPost, updatedProduct);
+
+            // Pausar la ejecución durante unos segundos (ajusta según sea necesario)
+            await sleep(1000); // Puedes ajustar el tiempo de pausa según tus necesidades
+        }
+
+        // Responder con los datos formateados
+        res.setHeader("Content-Type", "application/json");
+        res.end(JSON.stringify(updatedSalesData));
+    } catch (error) {
+        // Manejar errores al realizar la solicitud
         console.error("Error al hacer la solicitud:", error);
         res.writeHead(500, { "Content-Type": "text/plain" });
         res.end("Error interno del servidor");
-    });
+    }
+}
 
-    // Finalizar la solicitud a la API
-    apiRequest.end();
+// Función para enviar datos a la nueva API
+async function sendToStelOrderAPI(apiUrl, apiKey, datos) {
+    try {
+        // Realizar solicitudes POST a la API con los datos formateados en el cuerpo (body)
+        const response = await axios.post(apiUrl, datos, {
+            headers: {
+                "APIKEY": apiKey,
+                "Content-Type": "application/json",
+            },
+        });
+
+        console.log("Respuesta de la API de StelOrder:", response.data);
+    } catch (error) {
+        console.error("Error al enviar datos a la API de StelOrder:", error);
+    }
+}
+
+// Función para pausar la ejecución (promesa)
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Configurar el servidor
-const server = http.createServer(requestController);
+const server = require("http").createServer(requestController);
 
 // Obtener el puerto de las variables de entorno o utilizar el puerto 4000 por defecto
 const PORT = process.env.PORT || 4000;
