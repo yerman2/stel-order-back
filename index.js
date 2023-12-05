@@ -1,8 +1,16 @@
-const http = require("http");
+require("dotenv").config();
 const axios = require("axios");
 
+let randomSum = 0;
+let peticionesRealizadas = false;
 let datosEnviados = new Set();
-let ultimaPeticion = Date.now();
+
+function updateRandomSum() {
+    const randomNumber1 = Math.floor(Math.random() * 1000) + 1;
+    const randomNumber2 = Math.floor(Math.random() * 1000) + 1;
+    randomSum = randomNumber1 + randomNumber2;
+    console.log("Valor actualizado de randomSum:", randomSum);
+}
 
 async function realizarPeticiones() {
     const apiKeyGet = "9W93AksSPoZi7Hmsl3e0rLZwDx9RmR07ZHEgSk2u";
@@ -62,7 +70,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const server = http.createServer(requestController);
+const server = require("http").createServer(requestController);
 
 const PORT = process.env.PORT || 5000;
 
@@ -71,19 +79,14 @@ server.listen(PORT, function () {
 });
 
 async function requestController(req, res) {
-    res.setHeader("Content-Type", "application/json");
+    peticionesRealizadas = false;
 
-    // Calcular tiempo desde la última petición
-    const tiempoDesdeUltimaPeticion = Date.now() - ultimaPeticion;
-
-    // Si ha pasado más de 1 segundo desde la última petición, restablecer valores
-    if (tiempoDesdeUltimaPeticion > 10000) {
-        datosEnviados = new Set();
-        ultimaPeticion = Date.now();
+    if (!peticionesRealizadas) {
+        await realizarPeticiones();
+        peticionesRealizadas = true;
     }
 
-    // Ejecutar el proceso de peticiones
-    await realizarPeticiones();
-
+    res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ message: "Peticiones realizadas correctamente" }));
 }
+// Coded by yerman2
