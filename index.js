@@ -32,10 +32,12 @@ async function realizarPeticiones() {
         });
 
         for (const updatedProduct of updatedSalesData) {
-            if (!datosEnviados.has(JSON.stringify(updatedProduct))) {
+            const stringifiedProduct = JSON.stringify(updatedProduct);
+
+            if (!datosEnviados.has(stringifiedProduct)) {
                 console.log("Enviando producto:", updatedProduct);
                 await sendToStelOrderAPI("https://app.stelorder.com/app/products", apiKeyPost, updatedProduct);
-                datosEnviados.add(JSON.stringify(updatedProduct));
+                datosEnviados.add(stringifiedProduct);
                 await sleep(1000);
             } else {
                 console.log("El dato ya se ha enviado previamente.");
