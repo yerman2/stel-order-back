@@ -2,6 +2,7 @@ const http = require("http");
 const axios = require("axios");
 
 let datosEnviados = new Set();
+let ultimaPeticion = Date.now();
 
 async function realizarPeticiones() {
     const apiKeyGet = "9W93AksSPoZi7Hmsl3e0rLZwDx9RmR07ZHEgSk2u";
@@ -71,6 +72,15 @@ server.listen(PORT, function () {
 
 async function requestController(req, res) {
     res.setHeader("Content-Type", "application/json");
+
+    // Calcular tiempo desde la última petición
+    const tiempoDesdeUltimaPeticion = Date.now() - ultimaPeticion;
+
+    // Si ha pasado más de 1 segundo desde la última petición, restablecer valores
+    if (tiempoDesdeUltimaPeticion > 1000) {
+        datosEnviados = new Set();
+        ultimaPeticion = Date.now();
+    }
 
     // Ejecutar el proceso de peticiones
     await realizarPeticiones();
