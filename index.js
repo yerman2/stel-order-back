@@ -2,6 +2,7 @@ const http = require("http");
 const axios = require("axios");
 
 let datosEnviados = new Set();
+let realizandoPeticiones = false;
 
 async function realizarPeticiones() {
     const apiKeyGet = "9W93AksSPoZi7Hmsl3e0rLZwDx9RmR07ZHEgSk2u";
@@ -72,8 +73,15 @@ server.listen(PORT, function () {
 async function requestController(req, res) {
     res.setHeader("Content-Type", "application/json");
 
-    // Realizar peticiones cuando se recibe una solicitud HTTP
-    await realizarPeticiones();
+    // Verificar si ya se están realizando peticiones
+    if (!realizandoPeticiones) {
+        // Iniciar el proceso de peticiones
+        realizandoPeticiones = true;
+        await realizarPeticiones();
+        realizandoPeticiones = false;
+    } else {
+        console.log("Ya se están realizando peticiones. Espere a que finalicen.");
+    }
 
     res.end(JSON.stringify({ message: "Peticiones realizadas correctamente" }));
 }
