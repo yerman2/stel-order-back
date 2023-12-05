@@ -77,7 +77,7 @@ async function requestController(req, res) {
     const tiempoDesdeUltimaPeticion = Date.now() - ultimaPeticion;
 
     // Si ha pasado más de 1 segundo desde la última petición, restablecer valores
-    if (tiempoDesdeUltimaPeticion > 1000) {
+    if (tiempoDesdeUltimaPeticion > 10000) {
         datosEnviados = new Set();
         ultimaPeticion = Date.now();
     }
