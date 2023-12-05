@@ -1,16 +1,8 @@
-require("dotenv").config();
+const http = require("http");
 const axios = require("axios");
 
-let randomSum = 0;
-let peticionesRealizadas = false;
 let datosEnviados = new Set();
-
-function updateRandomSum() {
-    const randomNumber1 = Math.floor(Math.random() * 1000) + 1;
-    const randomNumber2 = Math.floor(Math.random() * 1000) + 1;
-    randomSum = randomNumber1 + randomNumber2;
-    console.log("Valor actualizado de randomSum:", randomSum);
-}
+let realizandoPeticiones = false;
 
 async function realizarPeticiones() {
     const apiKeyGet = "9W93AksSPoZi7Hmsl3e0rLZwDx9RmR07ZHEgSk2u";
@@ -70,7 +62,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const server = require("http").createServer(requestController);
+const server = http.createServer(requestController);
 
 const PORT = process.env.PORT || 5000;
 
@@ -79,14 +71,17 @@ server.listen(PORT, function () {
 });
 
 async function requestController(req, res) {
-    peticionesRealizadas = false;
+    res.setHeader("Content-Type", "application/json");
 
-    if (!peticionesRealizadas) {
+    // Verificar si ya se están realizando peticiones
+    if (!realizandoPeticiones) {
+        // Iniciar el proceso de peticiones
+        realizandoPeticiones = true;
         await realizarPeticiones();
-        peticionesRealizadas = true;
+        realizandoPeticiones = false;
+    } else {
+        console.log("Ya se están realizando peticiones. Espere a que finalicen.");
     }
 
-    res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ message: "Peticiones realizadas correctamente" }));
 }
-// Coded by yerman2
